@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/thuantvDr4/my-ecomerce-be-nodejs#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mongoose": "^8.19.3"
   },
   "devDependencies": {
     "compression": "^1.8.1",
