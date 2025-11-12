@@ -1,7 +1,10 @@
 const app = require("./src/app");
-const PORT = 3055;
-const server = app.listen(PORT, () => {
-  console.log(`WSV eComerce start with ${PORT}`);
+const {
+  app: { port },
+} = require("./src/configs/config.mongodb");
+
+const server = app.listen(port, () => {
+  console.log(`WSV eComerce start with ${port}`);
 });
 
 process.on("SIGINT", () => {
