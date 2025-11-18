@@ -6,6 +6,7 @@ const shopModel = require("../models/shop.model");
 const KeyTokenService = require("./keyToken.service");
 const { createTokenKeyPair } = require("../auth/authUtils");
 const { format } = require("path");
+const { getInfoData } = require("../utils");
 
 const RoleShop = {
   SHOP: "0001",
@@ -71,7 +72,10 @@ class AccessService {
         return {
           code: 2001,
           metadta: {
-            shop: newShop,
+            shop: getInfoData({
+              fields: ["_id", "name", "email"],
+              object: newShop,
+            }),
             tokens,
           },
         };
