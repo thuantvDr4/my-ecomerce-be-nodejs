@@ -1,3 +1,4 @@
+// @ts-nocheck
 require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
@@ -21,5 +22,19 @@ checkOverload();
 app.use("/", require("./routes"));
 
 // handliing errors
+app.use((req, res, next) => {
+  const error = new Error("Not found");
+  error.status = 404;
+  next(error);
+});
+
+app.use((error, req, res, next) => {
+  const statusCode = error.status || 500;
+  return res.status(statusCode).json({
+    status: "error",
+    code: statusCode,
+    message: error?.message || " Internal server error!",
+  });
+});
 
 module.exports = app;
