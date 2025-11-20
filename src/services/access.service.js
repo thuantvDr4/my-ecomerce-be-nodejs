@@ -17,7 +17,6 @@ const RoleShop = {
 
 class AccessService {
   static async signup({ name, password, email }) {
-    a;
     try {
       const holderShop = await shopModel.findOne({ email }).lean();
       if (holderShop) {
