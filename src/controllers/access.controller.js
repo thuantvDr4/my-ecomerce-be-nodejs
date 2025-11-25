@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use strict";
-const { CREATED } = require("../core/success.response");
+const { CREATED, SUCCESS } = require("../core/success.response");
 const AccessService = require("../services/access.service");
 
 class AccessController {
@@ -12,6 +12,14 @@ class AccessController {
       options: {
         limit: 10,
       },
+    }).send(res);
+  }
+
+  //--login
+  async login(req, res, next) {
+    new SUCCESS({
+      message: "Login OK!",
+      metadata: await AccessService.login(req.body),
     }).send(res);
   }
 }

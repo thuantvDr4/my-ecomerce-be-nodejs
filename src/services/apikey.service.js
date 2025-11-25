@@ -1,4 +1,6 @@
 // @ts-nocheck
+"use strict";
+
 const apikeyModel = require("../models/apikey.model");
 const crypto = require("crypto");
 

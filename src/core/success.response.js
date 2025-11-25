@@ -47,7 +47,21 @@ class CREATED extends SuccessResponse {
   }
 }
 
+class SUCCESS extends SuccessResponse {
+  constructor({
+    message,
+    metadata,
+    statusCode = StatusCode.OK,
+    reasonStatusCode = ReasonStatusCode.OK,
+    options = {},
+  }) {
+    super({ message, metadata, statusCode, reasonStatusCode });
+    this.options = options;
+  }
+}
+
 module.exports = {
   OK,
   CREATED,
+  SUCCESS,
 };
