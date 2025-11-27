@@ -25,6 +25,14 @@ const RoleShop = {
 };
 
 class AccessService {
+  //--logout
+  static async logout(keyStore) {
+    console.log("::keysotr", keyStore);
+    const delkey = await KeyTokenService.removeKeyById(keyStore._id);
+    console.log("::delKey::", delkey);
+    return delkey;
+  }
+
   //--login
   /**
    * 1. check email

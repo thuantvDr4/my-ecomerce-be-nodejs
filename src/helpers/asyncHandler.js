@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use strict";
 
 const asyncHandler = (fn) => {
   return (req, res, next) => {
@@ -6,6 +7,4 @@ const asyncHandler = (fn) => {
   };
 };
 
-module.exports = {
-  asyncHandler,
-};
+module.exports = asyncHandler;
