@@ -5,12 +5,13 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const shopModel = require("../models/shop.model");
 const KeyTokenService = require("./keyToken.service");
-const { createTokenKeyPair } = require("../auth/authUtils");
+const { createTokenKeyPair, verifyJWT } = require("../auth/authUtils");
 const { format } = require("path");
 const { getInfoData } = require("../utils");
 const {
   BadRequestErrror,
   AuthFailureError,
+  ForbiddenError,
 } = require("../core/error.response");
 const { findByEmail } = require("./shop.service");
 const {
@@ -25,6 +26,62 @@ const RoleShop = {
 };
 
 class AccessService {
+  //--check refresh token
+  /**
+   * check refreshtoken is used?
+   */
+  static async handleRefreshToken(refreshToken) {
+    // check xem token nay da duoc su dung chua?
+    const foundToken = await KeyTokenService.findByRefreshTokenUsed(
+      refreshToken
+    );
+    // neu co
+    if (foundToken) {
+      // decode xem may là thang nao?
+      const { userId, email } = await verifyJWT(
+        refreshToken,
+        foundToken.privateKey
+      );
+      console.log(":::", { userId, email });
+      //--xoa tat ca token trong keyStore
+      await KeyTokenService.deleteKeyById(userId);
+      throw new ForbiddenError("Somethings wrong happen! Please relogin");
+    }
+    // NO
+    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
+    if (!holderToken) throw new AuthFailureError("Shop not registed! 1");
+    // verify token
+    const { userId, email } = await verifyJWT(
+      refreshToken,
+      holderToken.privateKey
+    );
+    // check userId
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) throw new AuthFailureError("Shop not registed! 2");
+
+    // cap lại 1 cap token moi
+    const tokens = await createTokenKeyPair(
+      { email, userId },
+      {
+        publicKey: holderToken.publicKey,
+        privateKey: holderToken.privateKey,
+      }
+    );
+    // update token
+    await holderToken.updateOne({
+      $set: {
+        refreshToken: tokens.refreshToken,
+      },
+      $addToSet: {
+        refreshTokensUsed: refreshToken, // da duoc su dung de lay token moi roi
+      },
+    });
+    return {
+      user: { userId, email },
+      tokens,
+    };
+  }
+
   //--logout
   static async logout(keyStore) {
     console.log("::keysotr", keyStore);
