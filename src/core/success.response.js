@@ -64,4 +64,5 @@ module.exports = {
   OK,
   CREATED,
   SUCCESS,
+  SuccessResponse,
 };
