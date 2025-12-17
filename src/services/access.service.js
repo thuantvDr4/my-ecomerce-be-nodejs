@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 "use strict";
 
 const bcrypt = require("bcrypt");
@@ -26,6 +27,48 @@ const RoleShop = {
 };
 
 class AccessService {
+  //--check refresh token v2: fixed
+  /**
+   * check refreshtoken is used?
+   */
+  static async handleRefreshTokenV2({ refreshToken, user, keyStore }) {
+    const { userId, email } = user;
+    // check xem token nay da duoc su dung chua?
+    if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+      //--xoa tat ca token trong keyStore
+      await KeyTokenService.deleteKeyById(userId);
+      throw new ForbiddenError("Somethings wrong happen! Please relogin");
+    }
+
+    if (keyStore.refreshToken !== refreshToken)
+      throw new AuthFailureError("Shop not registed!");
+
+    // check userId
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) throw new AuthFailureError("Shop not registed! 2");
+    // cap lại 1 cap token moi
+    const tokens = await createTokenKeyPair(
+      { email, userId },
+      {
+        publicKey: keyStore.publicKey,
+        privateKey: keyStore.privateKey,
+      }
+    );
+    // update token
+    await keyStore.updateOne({
+      $set: {
+        refreshToken: tokens.refreshToken,
+      },
+      $addToSet: {
+        refreshTokensUsed: refreshToken, // da duoc su dung de lay token moi roi
+      },
+    });
+    return {
+      user,
+      tokens,
+    };
+  }
+
   //--check refresh token
   /**
    * check refreshtoken is used?

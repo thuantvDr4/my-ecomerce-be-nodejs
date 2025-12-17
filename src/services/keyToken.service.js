@@ -38,7 +38,7 @@ class KeyTokenService {
 
   static async findByUserId(userId) {
     if (!Types.ObjectId.isValid(userId)) return null;
-    return await keytokenModel.findOne({ user: userId }).lean();
+    return await keytokenModel.findOne({ user: userId });
   }
 
   static async removeKeyById(id) {
