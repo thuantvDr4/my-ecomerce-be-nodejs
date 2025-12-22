@@ -33,7 +33,7 @@ app.use((error, req, res, next) => {
   return res.status(statusCode).json({
     status: "error",
     code: statusCode,
-    stack: error.stack,
+    stack: error.stack, // should off when run PROD
     message: error?.message || " Internal server error!",
   });
 });

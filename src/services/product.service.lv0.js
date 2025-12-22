@@ -7,17 +7,18 @@ class ProductFactory {
   /**
    * type: clothing | electronic
    */
+
+  static productRegistry = {};
+
+  static regisProductType(type, classRef) {
+    ProductFactory.productRegistry[type] = classRef;
+  }
+
   static async createProduct(type, payload) {
-    switch (type) {
-      case "Electronics":
-        return new Electronics(payload).createProduct();
-
-      case "Clothing":
-        return new Clothing(payload).createProduct();
-
-      default:
-        throw new BadRequestErrror(`Invalid Product Types ${type}!`);
-    }
+    const productClass = ProductFactory.productRegistry[type];
+    if (!productClass)
+      throw new BadRequestErrror(`Invalid Product Types ${type}!`);
+    return new productClass(payload).createProduct();
   }
 }
 
@@ -43,8 +44,8 @@ class Product {
     this.product_shop = product_shop;
   }
   // create new product
-  async createProduct() {
-    return await product.create(this);
+  async createProduct(product_id) {
+    return await product.create({ ...this, _id: product_id });
   }
 }
 
@@ -53,10 +54,13 @@ class Product {
 //--clothing
 class Clothing extends Product {
   async createProduct() {
-    const newClothing = await clothing.create(this.product_attributes);
+    const newClothing = await clothing.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+    });
     if (!newClothing) throw new BadRequestErrror("Create new Clothing error!");
 
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newClothing._id);
     if (!newProduct) throw new BadRequestErrror("Create new Prouct error!");
 
     return newProduct;
@@ -66,11 +70,13 @@ class Clothing extends Product {
 //--Electronics
 class Electronics extends Product {
   async createProduct() {
-    const newElectronic = await electronic.create(this.product_attributes);
-    if (!newElectronic)
-      throw new BadRequestErrror("Create new Electronic error!");
+    const newItem = await electronic.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+    });
+    if (!newItem) throw new BadRequestErrror("Create new Electronic error!");
 
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newItem._id);
     if (!newProduct) throw new BadRequestErrror("Create new Prouct error!");
 
     return newProduct;
