@@ -25,6 +25,16 @@ class ProductController {
     }).send(res);
   }
 
+  async unPublishProductByShop(req, res, next) {
+    new SuccessResponse({
+      message: "unPublishProductByShop success!",
+      metadata: await ProductService.unPublishProductByShop({
+        product_shop: req.user.userId,
+        product_id: req.params.id,
+      }),
+    }).send(res);
+  }
+
   //--QUERY
 
   /**
@@ -50,6 +60,14 @@ class ProductController {
       metadata: await ProductService.findAllPublishsForShop({
         product_shop: req.user.userId,
       }),
+    }).send(res);
+  }
+
+  //--getAllDraftsForShop
+  async getListSearchProduct(req, res, next) {
+    new SuccessResponse({
+      message: "getListSearchProduct success!",
+      metadata: await ProductService.searchProducts(req.params),
     }).send(res);
   }
   // --END QUERY

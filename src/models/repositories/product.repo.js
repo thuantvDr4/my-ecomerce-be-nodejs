@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use strict";
 const { Types } = require("mongoose");
 const {
@@ -6,6 +7,22 @@ const {
   clothing,
   furniture,
 } = require("../product.model");
+
+const searchProductsByUser = async ({ keySearch, limit, skip }) => {
+  const regexSearch = new RegExp(keySearch);
+  const result = product
+    .find(
+      {
+        isPublished: true,
+        $text: { $search: regexSearch },
+      },
+      { score: { $meta: "textScore" } }
+    )
+    .sort({ score: { $meta: "textScore" } })
+    .lean();
+
+  return result;
+};
 
 const findAllDraftsForShop = async ({ query, limit, skip }) => {
   return await queryProduct({ query, limit, skip });
@@ -27,6 +44,18 @@ const publishProductByShop = async ({ product_shop, product_id }) => {
   return modifiedCount;
 };
 
+const unPublishProductByShop = async ({ product_shop, product_id }) => {
+  const foundShop = await product.findOne({
+    product_shop: product_shop,
+    _id: product_id,
+  });
+  if (!foundShop) return null;
+  foundShop.isDraft = true;
+  foundShop.isPublished = false;
+  const { modifiedCount } = await foundShop.updateOne(foundShop);
+  return modifiedCount;
+};
+
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
     .find(query)
@@ -42,4 +71,6 @@ module.exports = {
   publishProductByShop,
   findAllDraftsForShop,
   findAllPublishsForShop,
+  unPublishProductByShop,
+  searchProductsByUser,
 };

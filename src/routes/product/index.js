@@ -5,6 +5,12 @@ const asyncHandler = require("../../helpers/asyncHandler");
 const { authentication, authenticationV2 } = require("../../auth/authUtils");
 const router = express.Router();
 
+//--PUBLIC
+router.get(
+  "/search/:keySearch",
+  asyncHandler(productController.getListSearchProduct)
+);
+
 //--check authentication
 router.use(authenticationV2);
 //----/////
@@ -12,6 +18,10 @@ router.post("", asyncHandler(productController.createproduct));
 router.post(
   "/publish/:id",
   asyncHandler(productController.pudlishProductByShop)
+);
+router.post(
+  "/unpublish/:id",
+  asyncHandler(productController.unPublishProductByShop)
 );
 
 //--QUERY//

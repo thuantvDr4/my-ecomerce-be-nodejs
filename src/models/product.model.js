@@ -40,6 +40,9 @@ const productSchema = new Schema(
   }
 );
 
+// CREATE INDEX
+productSchema.index({ product_name: "text", product_description: "text" });
+
 //--document midleware: runs before save(), and create, update...
 productSchema.pre("save", function (next) {
   this.product_slug = slugify(this.product_name, { lower: true });
