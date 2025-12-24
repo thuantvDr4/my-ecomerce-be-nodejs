@@ -10,6 +10,7 @@ router.get(
   "/search/:keySearch",
   asyncHandler(productController.getListSearchProduct)
 );
+router.get("", asyncHandler(productController.getAllProducts));
 
 //--check authentication
 router.use(authenticationV2);
