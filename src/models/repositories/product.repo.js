@@ -7,7 +7,7 @@ const {
   clothing,
   furniture,
 } = require("../product.model");
-const { getSelectData } = require("../../utils");
+const { getSelectData, unGetSelectData } = require("../../utils");
 
 const searchProductsByUser = async ({ keySearch, limit, skip }) => {
   const regexSearch = new RegExp(keySearch);
@@ -71,6 +71,10 @@ const findAllProducts = async ({ limit, sort, page, filter, select }) => {
   return products;
 };
 
+const findProduct = async ({ product_id, unSelect }) => {
+  return await product.findById(product_id).select(unGetSelectData(unSelect));
+};
+
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
     .find(query)
@@ -89,4 +93,5 @@ module.exports = {
   unPublishProductByShop,
   searchProductsByUser,
   findAllProducts,
+  findProduct,
 };

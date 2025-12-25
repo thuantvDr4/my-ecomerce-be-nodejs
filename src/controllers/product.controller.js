@@ -79,6 +79,16 @@ class ProductController {
     }).send(res);
   }
 
+  //--getProductById
+  async getProductById(req, res, next) {
+    new SuccessResponse({
+      message: "getProductById success!",
+      metadata: await ProductService.findProduct({
+        product_id: req.params.product_id,
+      }),
+    }).send(res);
+  }
+
   // --END QUERY
 }
 
