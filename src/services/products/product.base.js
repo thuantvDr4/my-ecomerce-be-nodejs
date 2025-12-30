@@ -1,5 +1,6 @@
 // @ts-nocheck
 const { product } = require("../../models/product.model");
+const { updateProductById } = require("../../models/repositories/product.repo");
 class ProductBase {
   constructor({
     product_name,
@@ -23,6 +24,11 @@ class ProductBase {
   // create new product
   async createProduct(product_id) {
     return await product.create({ ...this, _id: product_id });
+  }
+
+  // update product
+  async updateProduct(product_id, bodyUpdate) {
+    return await updateProductById({ product_id, bodyUpdate, model: product });
   }
 }
 

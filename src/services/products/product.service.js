@@ -36,11 +36,11 @@ class ProductFactory {
     return unPublishProductByShop({ product_shop, product_id });
   }
 
-  static async updateProduct(type, payload) {
+  static async updateProduct(type, product_id, payload) {
     const productClass = ProductFactory.productRegistry[type];
     if (!productClass)
       throw new BadRequestErrror(`Invalid Product Types ${type}!`);
-    return new productClass(payload).createProduct();
+    return new productClass(payload).updateProduct(product_id);
   }
 
   //--END PUT
@@ -78,7 +78,7 @@ class ProductFactory {
   static async findProduct({ product_id }) {
     return await findProduct({
       product_id,
-      unSelect: ["__v"],
+      unSelect: ["__v", "product_variations", "updatedAt", "createdAt"],
     });
   }
 }
