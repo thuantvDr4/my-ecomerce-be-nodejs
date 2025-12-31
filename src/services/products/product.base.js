@@ -1,5 +1,5 @@
-// @ts-nocheck
 const { product } = require("../../models/product.model");
+const { insertInventory } = require("../../models/repositories/inventory.repo");
 const { updateProductById } = require("../../models/repositories/product.repo");
 class ProductBase {
   constructor({
@@ -23,7 +23,17 @@ class ProductBase {
   }
   // create new product
   async createProduct(product_id) {
-    return await product.create({ ...this, _id: product_id });
+    //1. create new product
+    const newProduct = await product.create({ ...this, _id: product_id });
+    if (newProduct) {
+      //2. insert to inventory
+      await insertInventory({
+        productId: newProduct._id,
+        shopId: this.product_shop,
+        stock: this.product_quantity,
+      });
+    }
+    return newProduct;
   }
 
   // update product
