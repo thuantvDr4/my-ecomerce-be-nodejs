@@ -1,3 +1,4 @@
+"use strict";
 const { Schema, model } = require("mongoose"); // Erase if already required
 
 const DOCUMNENT_NAME = "Inventory";
