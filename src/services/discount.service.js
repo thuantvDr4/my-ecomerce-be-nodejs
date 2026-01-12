@@ -121,6 +121,7 @@ class DiscountService {
         select: ["product_name"],
       });
     }
+    return products;
   }
 
   //--get all discount codes of shop
@@ -169,8 +170,100 @@ class DiscountService {
 
     if (!foundDiscount) throw new NotFoundError(`Discount doesn't exists!`);
 
-    const { discount_is_active, discount_max_uses } = foundDiscount;
-    if (!discount_is_active) throw new BadRequestErrror(`discount expired!`);
-    if (!discount_max_uses) throw new BadRequestErrror(`discount are out!`);
+    const {
+      discount_is_active,
+      discount_max_uses,
+      discount_start_date,
+      discount_end_date,
+      discount_min_order_value,
+      discount_max_uses_per_user,
+      discount_users_used,
+      discount_type,
+      discount_value,
+    } = foundDiscount;
+    if (!discount_is_active) throw new NotFoundError(`discount expired!`);
+    if (!discount_max_uses) throw new NotFoundError(`discount are out!`);
+
+    if (
+      new Date() < new Date(discount_start_date) ||
+      new Date() > new Date(discount_end_date)
+    ) {
+      throw new NotFoundError("dicsount has code is expired!");
+    }
+    // check xem có set gia tri toi thieu hay khong?
+    let totalOrder = 0;
+    if (discount_min_order_value > 0) {
+      // get total
+      totalOrder = products.reduce((acc, product) => {
+        return acc + product.quantity * product.price;
+      }, 0);
+      if (totalOrder < discount_min_order_value) {
+        throw new NotFoundError(
+          `discount requires a minimum order value of ${discount_min_order_value}`
+        );
+      }
+    }
+    // check so lan su dung tren userId
+    if (discount_max_uses_per_user > 0) {
+      const userUsedDiscount = discount_users_used.find(
+        (user) => user.userId === userId
+      );
+      if (userUsedDiscount) {
+        //...neu so lan
+      }
+    }
+
+    // discount này là fixed amount hay percent
+    const amount =
+      discount_type === "fixed_amount"
+        ? discount_value
+        : totalOrder * (discount_value / 100);
+
+    // RETURN
+    return {
+      totalOrder,
+      discount: amount,
+      totalPrice: totalOrder - amount,
+    };
   }
+
+  /*
+  delete discount
+  cach chuẩn là: 1: kiểm tra có discount không? -> 2: lưu vào 1 database khác để truy van history sau này
+  -> 3: xóa
+  */
+  static async deleteDiscountCode({ shopId, codeId }) {
+    const deleted = await discount.findOneAndDelete({
+      discount_code: codeId,
+      discount_shopId: convertToOjectIdMongodb(shopId),
+    });
+    return deleted;
+  }
+
+  /*
+    cancel discount
+  */
+  static async cancelDiscountCode({ codeId, shopId, userId }) {
+    const foundDiscount = await checkDiscountExists({
+      model: discount,
+      filter: {
+        discount_code: codeId,
+        discount_shopId: convertToOjectIdMongodb(shopId),
+      },
+    });
+    if (!foundDiscount) throw new NotFoundError(`discount doesn't exists!`);
+
+    const result = await discount.findByIdAndUpdate({
+      $pull: { discount_users_used: userId },
+      $inc: {
+        discount_max_uses: 1,
+        discount_uses_count: -1,
+      },
+    });
+    return result;
+  }
+
+  // END
 }
+
+module.exports = DiscountService;
