@@ -7,7 +7,11 @@ const {
   clothing,
   furniture,
 } = require("../product.model");
-const { getSelectData, unGetSelectData } = require("../../utils");
+const {
+  getSelectData,
+  unGetSelectData,
+  convertToOjectIdMongodb,
+} = require("../../utils");
 
 const searchProductsByUser = async ({ keySearch, limit, skip }) => {
   const regexSearch = new RegExp(keySearch);
@@ -95,7 +99,16 @@ const queryProduct = async ({ query, limit, skip }) => {
     .exec();
 };
 
+const getProductById = async (productId) => {
+  return product
+    .findOne({
+      _id: convertToOjectIdMongodb(productId),
+    })
+    .lean();
+};
+
 module.exports = {
+  getProductById,
   updateProductById,
   publishProductByShop,
   findAllDraftsForShop,
