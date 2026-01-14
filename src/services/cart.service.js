@@ -1,6 +1,6 @@
 "use strict";
 
-const { NotFoundError } = require("../core/error.response");
+const { NotFoundError, BadRequestErrror } = require("../core/error.response");
 const { cart } = require("../models/cart.model");
 const { getProductById } = require("../models/repositories/product.repo");
 
@@ -126,6 +126,11 @@ class CartService {
 
     if (quantity === 0) {
       // delete item
+      return await CartService.deleteUserCartItem({ userId, productId });
+    }
+
+    if (quantity < 0) {
+      throw new BadRequestErrror("Quantity not available!");
     }
 
     return await CartService.updateUserCartQuantity({
