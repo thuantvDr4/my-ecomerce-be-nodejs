@@ -1,0 +1,18 @@
+<!-- cấu hình replication (sao chép dữ liệu) trong MySQL. -->
+<!-- SOURCE = MASTER -->
+
+CHANGE REPLICATION SOURCE TO
+SOURCE_HOST='172.18.0.2',
+SOURCE_PORT=3306,
+SOURCE_USER='root',
+SOURCE_PASSWORD='root123456',
+SOURCE_LOG_FILE='mysql-bin.000001',
+SOURCE_LOG_POS=158,
+SOURCE_CONNECT_RETRY=60,
+GET_SOURCE_PUBLIC_KEY=1;
+
+<!-- -tạo database chuẩn -->
+
+CREATE DATABASE test
+DEFAULT CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
