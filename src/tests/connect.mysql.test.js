@@ -12,8 +12,9 @@ const pool = mysql.createPool({
   database: "test",
 });
 
-const batchSize = 10; //1000; // adjust batch size as needed | là kích thước từng lô muốn insert
-const totalSize = 1000; //1_000_000; // adjust total size as needed
+const batchSize = 100000; // adjust batch size as needed | là kích thước từng lô muốn insert
+const totalSize = 10_000_000; // adjust total size as needed
+//10_000_000 ::::[TIMER]::::::: 1:08.005 (m:ss.mmm)
 let currentId = 1;
 console.time("::::[TIMER]::::::");
 const insertBatch = async () => {
